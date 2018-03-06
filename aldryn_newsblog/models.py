@@ -476,6 +476,55 @@ class NewsBlogLatestArticlesPlugin(PluginEditModeMixin,
             'latest_articles': self.latest_articles,
         }
 
+@python_2_unicode_compatible
+class NewsBlogArticlesByCategoryPlugin(PluginEditModeMixin,
+                                   AdjustableCacheModelMixin,
+                                   NewsBlogCMSPlugin):
+    category = models.CharField(
+        default='',
+        max_length=255,
+        help_text=_('The category of latest articles to display.')
+    )    
+    latest_articles = models.IntegerField(
+        default=5,
+        help_text=_('The maximum number of latest articles to display.')
+    )
+    exclude_featured = models.PositiveSmallIntegerField(
+        default=0,
+        blank=True,
+        help_text=_(
+            'The maximum number of featured articles to exclude from display. '
+            'E.g. for uses in combination with featured articles plugin.')
+    )
+
+    def get_articles(self, request):
+        """
+        Returns a queryset of the latest N articles of M category. N is the plugin setting:
+        latest_articles. M is the plugin setting:category.
+        """
+        queryset = Article.objects.filter(categories__translations__slug = self.category)
+        featured_qs = Article.objects.all().filter(is_featured=True)
+        if not self.get_edit_mode(request):
+            queryset = queryset.published()
+            featured_qs = featured_qs.published()
+        languages = get_valid_languages_from_request(
+            self.app_config.namespace, request)
+        if self.language not in languages:
+            return queryset.none()
+        queryset = queryset.translated(*languages).filter(
+            app_config=self.app_config)
+        featured_qs = featured_qs.translated(*languages).filter(
+            app_config=self.app_config)
+        exclude_featured = featured_qs.values_list(
+            'pk', flat=True)[:self.exclude_featured]
+        queryset = queryset.exclude(pk__in=list(exclude_featured))
+        return queryset[:self.latest_articles]
+
+    def __str__(self):
+        return ugettext('%(app_title)s latest articles: %(latest_articles)s') % {
+            'app_title': self.app_config.get_app_title(),
+            'latest_articles': self.latest_articles,
+        }
 
 @python_2_unicode_compatible
 class NewsBlogRelatedPlugin(PluginEditModeMixin, AdjustableCacheModelMixin,

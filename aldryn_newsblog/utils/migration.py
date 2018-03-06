@@ -20,6 +20,8 @@ default_cms_plugin_table_mapping = (
         'aldryn_newsblog_newsblogfeaturedarticlesplugin'),
     ('cmsplugin_newsbloglatestarticlesplugin',
         'aldryn_newsblog_newsbloglatestarticlesplugin'),
+    ('cmsplugin_newsbloglatestarticlesbycategoryplugin',
+        'aldryn_newsblog_newsbloglatestarticlesbycategoryplugin'),
     ('cmsplugin_newsblogrelatedplugin',
         'aldryn_newsblog_newsblogrelatedplugin'),
     ('cmsplugin_newsblogtagsplugin', 'aldryn_newsblog_newsblogtagsplugin'),

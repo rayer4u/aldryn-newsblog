@@ -159,6 +159,65 @@ class NewsBlogLatestArticlesPlugin(AdjustableCacheMixin, NewsBlogPlugin):
 
 
 @plugin_pool.register_plugin
+class NewsBlogArticlesByCategoryPlugin(AdjustableCacheMixin, NewsBlogPlugin):
+    render_template = 'aldryn_newsblog/plugins/latest_articles.html'
+    name = _('Latest Articles by Category')
+    model = models.NewsBlogArticlesByCategoryPlugin
+    form = forms.NewsBlogArticlesByCategoryPluginForm
+
+    def render(self, context, instance, placeholder):
+        request = context.get('request')
+        context['instance'] = instance
+        context['article_list'] = instance.get_articles(request)
+        return context
+
+
+@plugin_pool.register_plugin
+class NewsBlogArticlesByCategoryBreifPlugin(AdjustableCacheMixin, 
+                                            NewsBlogPlugin):
+    render_template = 'aldryn_newsblog/plugins/latest_articles_breif.html'
+    name = _('Latest Articles Breif by Category')
+    model = models.NewsBlogArticlesByCategoryPlugin
+    form = forms.NewsBlogArticlesByCategoryPluginForm
+
+    def render(self, context, instance, placeholder):
+        request = context.get('request')
+        context['instance'] = instance
+        context['article_list'] = instance.get_articles(request)
+        return context
+
+
+@plugin_pool.register_plugin
+class NewsBlogArticlesByCategoryLeadInPlugin(AdjustableCacheMixin, 
+                                             NewsBlogPlugin):
+    render_template = 'aldryn_newsblog/plugins/latest_articles_lead_in.html'
+    name = _('Latest Articles Lead In by Category')
+    model = models.NewsBlogArticlesByCategoryPlugin
+    form = forms.NewsBlogArticlesByCategoryPluginForm
+
+    def render(self, context, instance, placeholder):
+        request = context.get('request')
+        context['instance'] = instance
+        context['article_list'] = instance.get_articles(request)
+        return context
+
+
+@plugin_pool.register_plugin
+class NewsBlogArticlesByCategoryIconPlugin(AdjustableCacheMixin, 
+                                           NewsBlogPlugin):
+    render_template = 'aldryn_newsblog/plugins/latest_articles_icon.html'
+    name = _('Latest Articles Icon by Category')
+    model = models.NewsBlogArticlesByCategoryPlugin
+    form = forms.NewsBlogArticlesByCategoryPluginForm
+
+    def render(self, context, instance, placeholder):
+        request = context.get('request')
+        context['instance'] = instance
+        context['article_list'] = instance.get_articles(request)
+        return context
+
+
+@plugin_pool.register_plugin
 class NewsBlogRelatedPlugin(AdjustableCacheMixin, NewsBlogPlugin):
     render_template = 'aldryn_newsblog/plugins/related_articles.html'
     name = _('Related Articles')
