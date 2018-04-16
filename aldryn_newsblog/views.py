@@ -2,29 +2,26 @@
 
 from __future__ import unicode_literals
 
-from datetime import datetime, date
-from dateutil.relativedelta import relativedelta
+from datetime import date, datetime
 
+from aldryn_apphooks_config.mixins import AppConfigMixin
+from aldryn_categories.models import Category
+from aldryn_newsblog.utils.utilities import get_valid_languages_from_request
+from aldryn_people.models import Person
+from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.auth.views import redirect_to_login
 from django.db.models import Q
-from django.http import (
-    Http404,
-    HttpResponseRedirect,
-    HttpResponsePermanentRedirect,
-)
+from django.http import (Http404, HttpResponsePermanentRedirect,
+                         HttpResponseRedirect)
 from django.shortcuts import get_object_or_404
 from django.utils import translation
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
-
 from menus.utils import set_language_changer
 from parler.views import TranslatableSlugMixin, ViewUrlMixin
 from taggit.models import Tag
 
-from aldryn_apphooks_config.mixins import AppConfigMixin
-from aldryn_categories.models import Category
-from aldryn_people.models import Person
-
-from aldryn_newsblog.utils.utilities import get_valid_languages_from_request
 from .models import Article
 from .utils import add_prefix_to_path
 
@@ -112,6 +109,15 @@ class ArticleDetail(AppConfigMixin, AppHookCheckMixin, PreviewModeMixin,
         """
         if not hasattr(self, 'object'):
             self.object = self.get_object()
+
+        # 用作过滤某些category的article，需要登录
+        if hasattr(settings, 'LOGIN_REQUIRED_CATEGORY') and self.object.categories.exists():
+            for category in self.object.categories.all():
+                for trans in category.translations.all():
+                    if trans.slug.__str__() in settings.LOGIN_REQUIRED_CATEGORY:
+                        if not request.user.is_authenticated():
+                            return redirect_to_login(request.get_full_path())
+
         set_language_changer(request, self.object.get_absolute_url)
         url = self.object.get_absolute_url()
         if (self.config.non_permalink_handling == 200 or request.path == url):
